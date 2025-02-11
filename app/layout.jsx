@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/custom/app-sidebar";
 import { ReactQueryProvider } from "@/components/custom/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.scss";
+import { LandingPage } from "@/components/custom/landing-page";
 
 export const metadata = {
   title: "Build Your Own Radar",
@@ -15,18 +16,16 @@ export const dynamic = "force-dynamic"; // auto | force-dynamic | error | force-
 
 export default function Layout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <Head>
         <Favicon />
       </Head>
-      <body>
+      <body className="h-full">
         <TooltipProvider>
           <ReactQueryProvider>
             <ClerkProvider>
               <SignedOut>
-                <div className="absolute right-0 top-0 m-4">
-                  <SignInButton />
-                </div>
+                <LandingPage />
               </SignedOut>
               <SignedIn>
                 <SidebarProvider>
