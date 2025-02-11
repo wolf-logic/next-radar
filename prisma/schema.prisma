@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String      @id @db.VarChar(255)
+  name        String?     @unique @db.VarChar(255)
+  slug        String?     @unique @db.VarChar(255)
+  dateCreated DateTime    @default(now()) @db.Timestamptz(6)
+  dateUpdated DateTime    @default(now()) @db.Timestamptz(6)
+  lastSeen    DateTime    @default(now())
+  users       RadarUser[]
+}
+
+model Radar {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String       @db.VarChar(255)
+  slug        String?      @db.VarChar(255)
+  quadrantNE  String       @default("North East") @db.VarChar(255)
+  quadrantNW  String       @default("North West") @db.VarChar(255)
+  quadrantSE  String       @default("South East") @db.VarChar(255)
+  quadrantSW  String       @default("South West") @db.VarChar(255)
+  ring1       String       @default("Ring 1") @db.VarChar(255)
+  ring2       String       @default("Ring 2") @db.VarChar(255)
+  ring3       String       @default("Ring 3") @db.VarChar(255)
+  ring4       String?      @default("Ring 4") @db.VarChar(255)
+  createdBy   String?      @db.VarChar(255)
+  dateCreated DateTime     @default(now()) @db.Timestamptz(6)
+  dateUpdated DateTime     @default(now()) @db.Timestamptz(6)
+  users       RadarUser[]
+  entries     RadarEntry[]
+}
+
+model RadarUser {
+  radarId     String   @db.Uuid
+  userId      String   @db.VarChar(255)
+  dateCreated DateTime @default(now()) @db.Timestamptz(6)
+  dateUpdated DateTime @default(now()) @db.Timestamptz(6)
+  radar       Radar    @relation(fields: [radarId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user        User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([radarId, userId])
+}
+
+model RadarEntry {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  radarId     String   @db.Uuid
+  name        String   @db.VarChar(255)
+  ring        Int      @db.Integer
+  quadrant    String   @db.VarChar(2)
+  status      String   @db.VarChar(255)
+  description String?  @db.Text
+  dateCreated DateTime @default(now()) @db.Timestamptz(6)
+  dateUpdated DateTime @default(now()) @db.Timestamptz(6)
+  radar       Radar    @relation(fields: [radarId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([radarId, name])
+  @@index([radarId])
+}
