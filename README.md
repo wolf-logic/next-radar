@@ -1,84 +1,21 @@
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/thoughtworks/build-your-own-radar?sort=semver)](https://github.com/thoughtworks/build-your-own-radar/releases/latest)
-[![Thoughtworks](https://circleci.com/gh/thoughtworks/build-your-own-radar.svg?style=shield)](https://circleci.com/gh/thoughtworks/build-your-own-radar)
-[![Stars](https://badgen.net/github/stars/thoughtworks/build-your-own-radar)](https://github.com/thoughtworks/build-your-own-radar)
-[![Docker Hub Pulls](https://img.shields.io/docker/pulls/wwwthoughtworks/build-your-own-radar.svg)](https://hub.docker.com/r/wwwthoughtworks/build-your-own-radar)
-[![GitHub contributors](https://badgen.net/github/contributors/thoughtworks/build-your-own-radar?color=cyan)](https://github.com/thoughtworks/build-your-own-radar/graphs/contributors)
-[![Prettier-Standard Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://github.com/sheerun/prettier-standard)
-[![AGPL License](https://badgen.net/github/license/thoughtworks/build-your-own-radar)](https://github.com/thoughtworks/build-your-own-radar)
+# Next Tech Radar
 
-A library that generates an interactive radar, inspired by [thoughtworks.com/radar](http://thoughtworks.com/radar).
+An application used to generate interactive radars, inspired by [thoughtworks.com/radar](http://thoughtworks.com/radar).
 
 ## Demo
 
-You can see this in action at https://radar.thoughtworks.com. If you plug in [this data](https://docs.google.com/spreadsheets/d/1GBX3-jzlGkiKpYHF9RvVtu6GxSrco5OYTBv9YsOTXVg/edit#gid=0) you'll see [this visualization](https://radar.thoughtworks.com/?sheetId=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1GBX3-jzlGkiKpYHF9RvVtu6GxSrco5OYTBv9YsOTXVg%2Fedit%23gid%3D0).
+You can see the original BYOR in action at https://radar.thoughtworks.com. If you plug in [this data](https://docs.google.com/spreadsheets/d/1GBX3-jzlGkiKpYHF9RvVtu6GxSrco5OYTBv9YsOTXVg/edit#gid=0) you'll see [this visualization](https://radar.thoughtworks.com/?sheetId=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1GBX3-jzlGkiKpYHF9RvVtu6GxSrco5OYTBv9YsOTXVg%2Fedit%23gid%3D0).
 
 ## How To Use
 
-The easiest way to use the app out of the box is to provide a _public_ Google Sheet ID from which all the data will be fetched. You can enter that ID into the input field and your radar will be generated once you click the submit button. The data must conform to the format below for the radar to be generated correctly.
+The format of the JSON is an array of objects with the the fields: `name`, `ring`, `quadrant`, `status`, and `description`.
 
-### Setting up your data
-
-You need to make your data public in a form we can digest.
-
-Create a Google Sheet. Give it at least the below column headers, and put in the content that you want:
-
-| name          | ring   | quadrant               | isNew | description                                             |
-| ------------- | ------ | ---------------------- | ----- | ------------------------------------------------------- |
-| Composer      | adopt  | tools                  | TRUE  | Although the idea of dependency management ...          |
-| Canary builds | trial  | techniques             | FALSE | Many projects have external code dependencies ...       |
-| Apache Kylin  | assess | platforms              | TRUE  | Apache Kylin is an open source analytics solution ...   |
-| JSF           | hold   | languages & frameworks | FALSE | We continue to see teams run into trouble using JSF ... |
-
-### Want to show blip movement information?
-
-If you want to show movement of blips, add the optional column `status` to your dataset.
-
-This column accepts the following case-insensitive values :
+The `status` column accepts the following case-insensitive values :
 
 - `New` - appearing on the radar for the first time
 - `Moved In` - moving towards the center of the radar
 - `Moved Out` - moving towards the edge of the radar
 - `No Change` - no change in position
-
-### Sharing the sheet
-
-- In Google Sheets, click on "Share".
-- On the pop-up that appears, set the General Access as "Anyone with the link" and add "Viewer" permission.
-- Use the URL link of the sheet.
-
-The URL will be similar to [https://docs.google.com/spreadsheets/d/1waDG0_W3-yNiAaUfxcZhTKvl7AUCgXwQw8mdPjCz86U/edit](https://docs.google.com/spreadsheets/d/1waDG0_W3-yNiAaUfxcZhTKvl7AUCgXwQw8mdPjCz86U/edit). In theory we are only interested in the part between '/d/' and '/edit' but you can use the whole URL if you want.
-
-### Using private Google Sheet
-
-When using a private Google Sheet as your input, you will be prompted with a Google One Tap Login popup. Once you have logged in with the appropriate Google Account and authorized our app to access the sheet, the Radar will be generated.
-
-The input data format for the private sheet is the same as a public Google Sheet.
-
-### Using CSV data
-
-The other way to provide your data is using CSV document format.
-You can enter a publicly accessible URL (not behind any authentication) of a CSV file into the input field on the first page.
-For example, a [raw URL](https://raw.githubusercontent.com/thoughtworks/build-your-own-radar/master/spec/end_to_end_tests/resources/sheet.csv) for a CSV file hosted publicly on GitHub can be used.
-The format is just the same as that of the Google Sheet, the example is as follows:
-
-```
-name,ring,quadrant,isNew,description
-Composer,adopt,tools,TRUE,"Although the idea of dependency management ..."
-Canary builds,trial,techniques,FALSE,"Many projects have external code dependencies ..."
-Apache Kylin,assess,platforms,TRUE,"Apache Kylin is an open source analytics solution ..."
-JSF,hold,languages & frameworks,FALSE,"We continue to see teams run into trouble using JSF ..."
-```
-
-If you do not want to host the CSV file publicly, you can follow [these steps](#advanced-option---docker-image-with-a-csvjson-file-from-the-host-machine) to host the file locally on your BYOR docker instance itself.
-
-**_Note:_** The CSV file parsing is using D3 library, so consult the [D3 documentation](https://github.com/d3/d3-request/blob/master/README.md#csv) for the data format details.
-
-### Using JSON data
-
-Another other way to provide your data is using a JSON array.
-You can enter a publicly accessible URL (not behind any authentication) of a JSON file into the input field on the first page.
-For example, a [raw URL](https://raw.githubusercontent.com/thoughtworks/build-your-own-radar/master/spec/end_to_end_tests/resources/data.json) for a JSON file hosted publicly on GitHub can be used.
-The format of the JSON is an array of objects with the the fields: `name`, `ring`, `quadrant`, `isNew`, and `description`.
 
 An example:
 
@@ -88,81 +25,36 @@ An example:
     "name": "Composer",
     "ring": "adopt",
     "quadrant": "tools",
-    "isNew": "TRUE",
+    "status": "New",
     "description": "Although the idea of dependency management ..."
   },
   {
     "name": "Canary builds",
     "ring": "trial",
     "quadrant": "techniques",
-    "isNew": "FALSE",
+    "status": "No Change",
     "description": "Many projects have external code dependencies ..."
   },
   {
     "name": "Apache Kylin",
     "ring": "assess",
     "quadrant": "platforms",
-    "isNew": "TRUE",
+    "status": "New",
     "description": "Apache Kylin is an open source analytics solution ..."
   },
   {
     "name": "JSF",
     "ring": "hold",
     "quadrant": "languages & frameworks",
-    "isNew": "FALSE",
+    "status": "No Change",
     "description": "We continue to see teams run into trouble using JSF ..."
   }
 ]
 ```
 
-If you do not want to host the JSON file publicly, you can follow [these steps](#advanced-option---docker-image-with-a-csvjson-file-from-the-host-machine) to host the file locally on your BYOR docker instance itself.
-
-**_Note:_** The JSON file parsing is using D3 library, so consult the [D3 documentation](https://github.com/d3/d3-request/blob/master/README.md#json) for the data format details.
-
-### Building the radar
-
-Paste the URL in the input field on the home page.
-
-That's it!
-
-**_Note:_** When using the BYOR app on [radar.thoughtworks.com](https://radar.thoughtworks.com), the ring and quadrant names should be among the values mentioned in the [example above](#setting-up-your-data). This holds good for Google Sheet, CSV or JSON inputs.
-For a self hosted BYOR app, there is no such condition on the names. Instructions to specify custom names are in the [next section](#more-complex-usage).
-
-Check [this page](https://www.thoughtworks.com/radar/byor) for step by step guidance.
-
 ### More complex usage
 
-To create the data representation, you can use the Google Sheet [factory](/src/util/factory.js) methods or CSV/JSON, or you can also insert all your data straight into the code.
-
-The app uses [Google Sheets APIs](https://developers.google.com/sheets/api/reference/rest) to fetch the data from a Google Sheet or [D3.js](https://d3js.org/) if supplied as CSV/JSON, so refer to their documentation for more advanced interaction. The input data is sanitized by whitelisting HTML tags with [sanitize-html](https://github.com/punkave/sanitize-html).
-
 The application uses [webpack](https://webpack.github.io/) to package dependencies and minify all .js and .scss files.
-
-Google OAuth Client ID and API Key can be obtained from your Google Developer Console. OAuth Client ID is mandatory for private Google Sheets, as it is needed for Google Authentication and Authorization of our app.
-
-```
-export CLIENT_ID=[Google Client ID]
-```
-
-**_Note:_** Make sure to set the "Authorized JavaScript origins" field for the Client ID to the right origin domain, with port, where the app is hosted. Examples: `http://localhost:8080` or `https://radar.thoughtworks.com`.
-
-Optionally, API Key can be set to bypass Google Authentication for public sheets.
-
-```
-export API_KEY=[Google API Key]
-```
-
-To enable Google Tag Manager, add the following environment variable.
-
-```
-export GTM_ID=[GTM ID]
-```
-
-To enable Adobe Launch, add the following environment variable.
-
-```
-export ADOBE_LAUNCH_SCRIPT_URL=[Adobe Launch URL]
-```
 
 To specify custom ring and/or quadrant names, add the following environment variables with the desired values.
 
@@ -171,82 +63,94 @@ export RINGS='["Adopt", "Trial", "Assess", "Hold"]'
 export QUADRANTS='["Techniques", "Platforms", "Tools", "Languages & Frameworks"]'
 ```
 
-## Docker Image
+## Development notes
 
-We have released BYOR as a docker image for our users. The image is available in our [DockerHub Repo](https://hub.docker.com/r/wwwthoughtworks/build-your-own-radar/). To pull and run the image, run the following commands.
+### Local Development Setup
 
-```
-$ docker pull wwwthoughtworks/build-your-own-radar
-$ docker run --rm -p 8080:80 -e CLIENT_ID="[Google Client ID]" wwwthoughtworks/build-your-own-radar:latest
-$ open http://localhost:8080
-```
-
-**_Notes:_**
-
-- The other environment variables mentioned in the previous section can be used with `docker run` as well.
-- Docker images for all the [releases](https://github.com/thoughtworks/build-your-own-radar/releases) are available with their respective tags (eg: `wwwthoughtworks/build-your-own-radar:v1.0.0`).
-
-### Advanced option - Docker image with a CSV/JSON file from the host machine
-
-You can check your setup by clicking on "Build my radar" and by loading the `csv`/`json` file from these locations:
-
-- http://localhost:8080/files/radar.csv
-- http://localhost:8080/files/radar.json
+Create a `.env` file based on the following content:
 
 ```
-$ docker pull wwwthoughtworks/build-your-own-radar
-$ docker run --rm -p 8080:80 -e SERVER_NAMES="localhost 127.0.0.1" -v /mnt/radar/files/:/opt/build-your-own-radar/files wwwthoughtworks/build-your-own-radar:latest
-$ open http://localhost:8080
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=****
+CLERK_SECRET_KEY=****
+
+# PostgreSQL
+DATABASE_URL=postgresql://radar:password@localhost/radar
+
+# NOTE: The following is used by the docker compose file for local development only
+DB_NAME=radar
+DB_USER=radar
+DB_PASS=****
 ```
 
-This will:
+Run the additional services required in the development, including database, using the following command:
 
-- Spawn a server that will listen locally on port 8080.
-- Mount the host volume on `/mnt/radar/files/` into the container on `/opt/build-your-own-radar/files/`.
-- Open http://localhost:8080 and for the URL enter: `http://localhost:8080/files/<NAME_OF_YOUR_FILE>.<EXTENSION_OF_YOUR_FILE[csv/json]>`. It needs to be a csv/json file.
+```bash
+docker compose up
+```
 
-You can now work locally on your machine, updating the csv/json file and render the result back on your browser.
-There is a sample csv and json file placed in `spec/end_to_end_tests/resources/localfiles/` for reference.
+### Docker Container Test
 
-**_Notes:_**
+The following can be used to build and test the container locally.
 
-- If API Key is also available, same can be provided to the `docker run` command as `-e API_KEY=[Google API Key]`.
-- For setting the `publicPath` in the webpack config while using this image, the path can be passed as an environment variable called `ASSET_PATH`.
+```bash
+docker build -t ghcr.io/stever/next-tech-radar .
+docker run -p 3000:3000 ghcr.io/stever/next-tech-radar
+```
 
-## Contribute
+### Local Database Setup
 
-All tasks are defined in `package.json`.
+When starting the database for the first time using the docker compose file in the root of the repository,
+the following command can be used to create the database using migrations.
 
-Pull requests are welcome; please write tests whenever possible.
-Make sure you have nodejs installed. You can run `nvm use` to use the version used by this repo.
+```bash
+npx prisma migrate dev
+```
 
-- `git clone git@github.com:thoughtworks/build-your-own-radar.git`
-- `npm install`
-- `npm run quality` - to run the linter and the unit tests
-- `npm run dev` - to run application in localhost:8080. This will watch the .js and .css files and rebuild on file changes
+### Local Database Changes
 
-## End to End Tests
+Change the database schema by modifying the `schema.prisma` file, then run the following command to generate a new migration.
 
-To run End to End tests, start the dev server and follow the required steps below:
+```bash
+npx prisma migrate dev --name <migration-name>
+```
 
-- To run in headless mode:
+When the changes are deployed to production, the migrations will be automatically applied.
 
-  - add a new environment variable `TEST_URL` and set it to 'http://localhost:8080'
-  - `npm run test:e2e-headless`
+#### Manual Migration
 
-- To run in debug mode:
-  - add a new environment variable `TEST_URL` and set it to 'http://localhost:8080'
-  - `npm run e2e`
-  - Select 'E2E Testing' and choose the browser
-  - Click on the spec to run it's tests
+The following will create a new migration file but not apply it - so it can be managed manually:
 
-**_Notes:_**
+```bash
+npx prisma migrate dev --create-only --name <migration-name>
+```
 
-- Currently, end to end tests are not supported for private Google Sheets, as it requires interacting with the Google One Tap popup.
-- To run end to end tests for public Google Sheets, the `CLIENT_ID` and `API_KEY` environment variables need to set as well (steps details [here](#more-complex-usage)), to provide Cypress with an authenticated session (without having to interact with Google's auth popups).
+Then apply with:
 
-### Don't want to install node? Run with one line docker
+```bash
+npx prisma migrate deploy
+```
 
-     $ docker run -p 8080:8080 -v $PWD:/app -w /app -it node:18 /bin/sh -c 'npm install && npm run dev'
+#### Migration Verification
 
-After building it will start on `localhost:8080`.
+```bash
+npx prisma migrate status
+```
+
+```bash
+npx prisma validate
+```
+
+```bash
+npx prisma migrate dev --create-only --name check_schema_alignment
+```
+
+Inspect the new migration file. Ideally, it should not require any changes, and the migration can simply be deleted.
+
+## Install React Components from shadcn
+
+https://ui.shadcn.com/docs/installation/next
+
+```bash
+npx shadcn@latest add button
+```
