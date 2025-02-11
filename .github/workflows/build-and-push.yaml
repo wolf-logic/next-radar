@@ -10,7 +10,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/stever/next-tech-radar
+  IMAGE_NAME: ghcr.io/wolf-logic/next-radar
   CONTEXT: .
   DOCKERFILE: ./Dockerfile
 
