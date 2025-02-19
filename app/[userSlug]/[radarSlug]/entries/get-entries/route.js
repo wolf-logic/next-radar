@@ -14,10 +14,10 @@ export async function GET(request, { params }) {
     return NextResponse.json({ error: "Bad request" }, { status: 400 });
   }
 
+  // First find the radar without checking access
   const radar = await prisma.radar.findFirst({
     where: {
-      slug: radarSlug,
-      createdBy: userId
+      slug: radarSlug
     },
     select: {
       id: true,
@@ -29,17 +29,23 @@ export async function GET(request, { params }) {
       ring2: true,
       ring3: true,
       ring4: true,
-      createdBy: true
+      createdBy: true,
+      users: {
+        where: {
+          userId: userId
+        }
+      }
     }
   });
 
   if (!radar) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json({ error: "Radar not found" }, { status: 404 });
   }
 
-  // Ensure that the user owns the radar
-  if (radar.createdBy !== userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Check if user has access (either creator or in RadarUser table)
+  const hasAccess = radar.createdBy === userId || radar.users.length > 0;
+  if (!hasAccess) {
+    return NextResponse.json({ error: "You don't have access to this radar" }, { status: 401 });
   }
 
   // Extract query parameters

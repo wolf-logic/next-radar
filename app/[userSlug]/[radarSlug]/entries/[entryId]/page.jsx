@@ -1,26 +1,53 @@
 import { Suspense } from "react";
+import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import ContextActionsPortal from "@/components/custom/context-actions-portal";
 import { NotFoundMessage } from "@/components/custom/not-found-message";
+import { NotAuthorisedMessage } from "@/components/custom/not-authorised-message";
 import { RadarEntryForm } from "@/components/custom/radar-entry-form";
 
-async function getEntryWithRadar(entryId) {
-  return prisma.radarEntry.findUnique({
+async function getEntryWithRadar(entryId, userId) {
+  const entry = await prisma.radarEntry.findUnique({
     where: {
       id: entryId
     },
     include: {
-      radar: true
+      radar: {
+        include: {
+          users: {
+            where: {
+              userId: userId
+            }
+          }
+        }
+      }
     }
   });
+
+  if (!entry) return null;
+
+  // Check if user has access (either creator or in RadarUser table)
+  const hasAccess = entry.radar.createdBy === userId || entry.radar.users.length > 0;
+  if (!hasAccess) return 'unauthorized';
+
+  return entry;
 }
 
 export default async function Page({ params }) {
-  const requestParams = await params;
-  const entry = await getEntryWithRadar(requestParams["entryId"]);
+  const { userId } = await auth();
+  if (!userId) {
+    return <NotAuthorisedMessage />;
+  }
 
-  if (!entry) {
+  const requestParams = await params;
+  const entry = await getEntryWithRadar(requestParams["entryId"], userId);
+
+  if (entry === null) {
     return <NotFoundMessage />;
+  }
+
+  if (entry === 'unauthorized') {
+    return <NotAuthorisedMessage />;
   }
 
   const ringOptions = [

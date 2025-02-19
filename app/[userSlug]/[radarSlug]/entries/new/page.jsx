@@ -12,12 +12,24 @@ export default async function NewEntryPage({ params }) {
 
   const radar = await prisma.radar.findFirst({
     where: {
-      slug: radarSlug,
-      createdBy: userId
+      slug: radarSlug
+    },
+    include: {
+      users: {
+        where: {
+          userId: userId
+        }
+      }
     }
   });
 
   if (!radar) {
+    notFound();
+  }
+
+  // Check if user has access (either creator or in RadarUser table)
+  const hasAccess = radar.createdBy === userId || radar.users.length > 0;
+  if (!hasAccess) {
     notFound();
   }
 
