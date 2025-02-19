@@ -72,7 +72,12 @@ export default async function Page({ params }) {
       <div style={{ height: "60px", backgroundColor: "#edf1f3" }}></div>
       <div className="container mx-auto py-10">
         <h1 className="mb-8 text-2xl font-bold">Edit Radar Entry</h1>
-        <RadarEntryForm entry={entry} ringOptions={ringOptions} quadrantOptions={quadrantOptions} />
+        <RadarEntryForm 
+          entry={entry} 
+          ringOptions={ringOptions} 
+          quadrantOptions={quadrantOptions} 
+          isOwner={entry.radar.createdBy === userId}
+        />
       </div>
     </>
   );

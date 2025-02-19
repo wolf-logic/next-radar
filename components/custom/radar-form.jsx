@@ -30,7 +30,7 @@ const formSchema = z.object({
   ring4: z.string().optional()
 });
 
-export function RadarForm({ radar, onSubmit, userSlug }) {
+export function RadarForm({ radar, onSubmit, userSlug, isOwner }) {
   const router = useRouter();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -215,7 +215,7 @@ export function RadarForm({ radar, onSubmit, userSlug }) {
             {isPending ? "Saving..." : radar ? "Update Radar" : "Create Radar"}
           </Button>
 
-          {radar && (
+          {radar && isOwner && (
             <>
               <Button
                 type="button"

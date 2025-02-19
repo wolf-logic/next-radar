@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { auth } from "@clerk/nextjs/server"
 import prisma from '@/lib/prisma'
 
-async function checkRadarAccess(radarId, userId) {
+async function checkRadarAccess(radarId, userId, requireOwner = false) {
   const radar = await prisma.radar.findUnique({
     where: {
       id: radarId
@@ -24,8 +24,12 @@ async function checkRadarAccess(radarId, userId) {
     throw new Error("Radar not found");
   }
 
-  const hasAccess = radar.createdBy === userId || radar.users.length > 0;
-  if (!hasAccess) {
+  const isOwner = radar.createdBy === userId;
+  const hasAccess = isOwner || radar.users.length > 0;
+
+  if (requireOwner && !isOwner) {
+    throw new Error("Only the radar owner can perform this action");
+  } else if (!hasAccess) {
     throw new Error("You don't have access to this radar");
   }
 
@@ -122,8 +126,8 @@ export async function deleteEntry(entryId) {
       throw new Error("Entry not found");
     }
 
-    // Check if user has access to the radar
-    await checkRadarAccess(entry.radarId, userId);
+    // Check if user is the radar owner
+    await checkRadarAccess(entry.radarId, userId, true);
 
     await prisma.radarEntry.delete({
       where: {

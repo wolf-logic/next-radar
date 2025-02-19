@@ -35,7 +35,7 @@ const formSchema = z.object({
   description: z.string().optional()
 });
 
-export function RadarEntryForm({ entry, radarId, ringOptions, quadrantOptions }) {
+export function RadarEntryForm({ entry, radarId, ringOptions, quadrantOptions, isOwner }) {
   const router = useRouter();
   const isEditing = !!entry;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -207,7 +207,7 @@ export function RadarEntryForm({ entry, radarId, ringOptions, quadrantOptions })
             {isEditing ? "Save Changes" : "Create Entry"}
           </Button>
 
-          {isEditing && (
+          {isEditing && isOwner && (
             <>
               <Button
                 type="button"
