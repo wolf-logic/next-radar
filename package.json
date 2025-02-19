@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "prettier": "prettier . --write"
+    "prettier": "prettier . --write",
+    "prisma:sync": "npm run prisma:pull && npm run prisma:generate && npm run prisma:baseline",
+    "prisma:pull": "prisma db pull",
+    "prisma:generate": "prisma generate",
+    "prisma:baseline": "prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0_init/migration.sql"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.9.9",

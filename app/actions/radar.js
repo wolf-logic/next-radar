@@ -4,6 +4,18 @@ import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 
+async function createAuditLog(entityType, entityId, action, changes, userId) {
+  await prisma.auditLog.create({
+    data: {
+      entityType,
+      entityId,
+      action,
+      changes,
+      userId
+    }
+  });
+}
+
 export async function getRadar(userSlug, radarSlug) {
   const user = await prisma.user.findUnique({
     where: { slug: userSlug },
@@ -169,7 +181,7 @@ export async function createRadar(formData) {
     throw new Error("A radar with this name already exists");
   }
 
-  await prisma.radar.create({
+  const radar = await prisma.radar.create({
     data: {
       name,
       slug,
@@ -184,6 +196,26 @@ export async function createRadar(formData) {
       createdBy: userId
     }
   });
+
+  // Log the creation
+  await createAuditLog(
+    'radar',
+    radar.id,
+    'create',
+    {
+      name,
+      slug,
+      quadrantNE,
+      quadrantNW,
+      quadrantSE,
+      quadrantSW,
+      ring1,
+      ring2,
+      ring3,
+      ring4
+    },
+    userId
+  );
 
   redirect(`/${user.slug}/${slug}`);
 }
@@ -268,7 +300,23 @@ export async function updateRadar(formData, radarSlug) {
   const ring3 = formData.get("ring3") || null;
   const ring4 = formData.get("ring4") || null;
 
-  await prisma.radar.update({
+  // Get the current state before update
+  const currentRadar = await prisma.radar.findUnique({
+    where: { id: radar.id },
+    select: {
+      name: true,
+      quadrantNE: true,
+      quadrantNW: true,
+      quadrantSE: true,
+      quadrantSW: true,
+      ring1: true,
+      ring2: true,
+      ring3: true,
+      ring4: true
+    }
+  });
+
+  const updatedRadar = await prisma.radar.update({
     where: { id: radar.id },
     data: {
       name,
@@ -282,6 +330,33 @@ export async function updateRadar(formData, radarSlug) {
       ring4
     }
   });
+
+  // Compare and log changes
+  const changes = {};
+  const newState = {
+    name,
+    quadrantNE,
+    quadrantNW,
+    quadrantSE,
+    quadrantSW,
+    ring1,
+    ring2,
+    ring3,
+    ring4
+  };
+
+  for (const [key, newValue] of Object.entries(newState)) {
+    if (currentRadar[key] !== newValue) {
+      changes[key] = {
+        from: currentRadar[key],
+        to: newValue
+      };
+    }
+  }
+
+  if (Object.keys(changes).length > 0) {
+    await createAuditLog('radar', radar.id, 'update', changes, userId);
+  }
 
   redirect(`/${user.slug}/${radarSlug}`);
 }
@@ -331,6 +406,22 @@ export async function deleteRadar(userSlug, radarSlug) {
   }
 
   // Delete the radar and all associated records in a transaction
+  // Get the current state before deletion for audit log
+  const radarToDelete = await prisma.radar.findUnique({
+    where: { id: radar.id },
+    select: {
+      name: true,
+      quadrantNE: true,
+      quadrantNW: true,
+      quadrantSE: true,
+      quadrantSW: true,
+      ring1: true,
+      ring2: true,
+      ring3: true,
+      ring4: true
+    }
+  });
+
   await prisma.$transaction([
     // Delete all radar entries
     prisma.radarEntry.deleteMany({
@@ -343,6 +434,16 @@ export async function deleteRadar(userSlug, radarSlug) {
     // Delete the radar itself
     prisma.radar.delete({
       where: { id: radar.id }
+    }),
+    // Create audit log
+    prisma.auditLog.create({
+      data: {
+        entityType: 'radar',
+        entityId: radar.id,
+        action: 'delete',
+        changes: radarToDelete,
+        userId
+      }
     })
   ]);
 

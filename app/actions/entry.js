@@ -5,6 +5,18 @@ import { redirect } from 'next/navigation'
 import { auth } from "@clerk/nextjs/server"
 import prisma from '@/lib/prisma'
 
+async function createAuditLog(entityType, entityId, action, changes, userId) {
+  await prisma.auditLog.create({
+    data: {
+      entityType,
+      entityId,
+      action,
+      changes,
+      userId
+    }
+  });
+}
+
 async function checkRadarAccess(radarId, userId, requireOwner = false) {
   const radar = await prisma.radar.findUnique({
     where: {
@@ -59,6 +71,22 @@ export async function createEntry(radarId, data) {
       },
     })
 
+    // Log the creation
+    await createAuditLog(
+      'entry',
+      entry.id,
+      'create',
+      {
+        name: data.name,
+        ring: parseInt(data.ring),
+        quadrant: data.quadrant,
+        status: data.status || "New",
+        description: data.description,
+        radarId: radarId
+      },
+      userId
+    )
+
     revalidatePath('/[userSlug]/[radarSlug]/entries')
     return { success: true, entry }
   } catch (error) {
@@ -87,6 +115,18 @@ export async function updateEntry(entryId, data) {
     // Check if user has access to the radar
     await checkRadarAccess(entry.radarId, userId);
 
+    // Get current state before update
+    const currentEntry = await prisma.radarEntry.findUnique({
+      where: { id: entryId },
+      select: {
+        name: true,
+        ring: true,
+        quadrant: true,
+        status: true,
+        description: true
+      }
+    });
+
     const updatedEntry = await prisma.radarEntry.update({
       where: {
         id: entryId,
@@ -100,6 +140,29 @@ export async function updateEntry(entryId, data) {
         dateUpdated: new Date(),
       },
     })
+
+    // Compare and log changes
+    const changes = {};
+    const newState = {
+      name: data.name,
+      ring: parseInt(data.ring),
+      quadrant: data.quadrant,
+      status: data.status,
+      description: data.description
+    };
+
+    for (const [key, newValue] of Object.entries(newState)) {
+      if (currentEntry[key] !== newValue) {
+        changes[key] = {
+          from: currentEntry[key],
+          to: newValue
+        };
+      }
+    }
+
+    if (Object.keys(changes).length > 0) {
+      await createAuditLog('entry', entryId, 'update', changes, userId);
+    }
 
     revalidatePath('/[userSlug]/[radarSlug]/entries')
     return { success: true, entry: updatedEntry }
@@ -129,11 +192,27 @@ export async function deleteEntry(entryId) {
     // Check if user is the radar owner
     await checkRadarAccess(entry.radarId, userId, true);
 
+    // Get current state before deletion
+    const entryToDelete = await prisma.radarEntry.findUnique({
+      where: { id: entryId },
+      select: {
+        name: true,
+        ring: true,
+        quadrant: true,
+        status: true,
+        description: true,
+        radarId: true
+      }
+    });
+
     await prisma.radarEntry.delete({
       where: {
         id: entryId,
       },
     })
+
+    // Log the deletion
+    await createAuditLog('entry', entryId, 'delete', entryToDelete, userId);
 
     revalidatePath('/[userSlug]/[radarSlug]/entries')
     return { success: true }

@@ -62,3 +62,16 @@ model RadarEntry {
   @@unique([radarId, name])
   @@index([radarId])
 }
+
+model AuditLog {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  entityType  String   @db.VarChar(10)
+  entityId    String   @db.Uuid
+  action      String   @db.VarChar(10)
+  changes     Json
+  userId      String   @db.VarChar(255)
+  timestamp   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([entityType, entityId])
+  @@index([userId])
+}
