@@ -76,9 +76,7 @@ export function RadarEntryForm({ entry, radarId, ringOptions, quadrantOptions, i
     if (result.success) {
       form.reset(data); // Reset form state to mark it as pristine
       router.refresh();
-      if (!isEditing) {
-        router.push(`..`); // Go back to entries list
-      }
+      router.push(`..`); // Go back to radar view
     }
   }
 
