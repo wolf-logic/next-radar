@@ -134,9 +134,13 @@ export async function getRadarData(userSlug, radarSlug) {
     ring: ringMap[entry.ring] || entry.ring
   }));
 
+  // Filter out any empty quadrants
+  const quadrants = [radar.quadrantNW, radar.quadrantSW, radar.quadrantNE, radar.quadrantSE]
+    .filter(quadrant => quadrant && quadrant.trim() !== '');
+
   return {
     entries: mappedEntries,
-    quadrants: [radar.quadrantNW, radar.quadrantSW, radar.quadrantNE, radar.quadrantSE],
+    quadrants,
     rings
   };
 }
@@ -154,10 +158,10 @@ export async function createRadar(formData) {
   }
 
   const name = formData.get("name");
-  const quadrantNE = formData.get("quadrantNE") || null;
-  const quadrantNW = formData.get("quadrantNW") || null;
-  const quadrantSE = formData.get("quadrantSE") || null;
-  const quadrantSW = formData.get("quadrantSW") || null;
+  const quadrantNE = formData.get("quadrantNE") || "";
+  const quadrantNW = formData.get("quadrantNW") || "";
+  const quadrantSE = formData.get("quadrantSE") || "";
+  const quadrantSW = formData.get("quadrantSW") || "";
   const ring1 = formData.get("ring1") || null;
   const ring2 = formData.get("ring2") || null;
   const ring3 = formData.get("ring3") || null;
@@ -291,10 +295,10 @@ export async function updateRadar(formData, radarSlug) {
   }
 
   const name = formData.get("name");
-  const quadrantNE = formData.get("quadrantNE") || null;
-  const quadrantNW = formData.get("quadrantNW") || null;
-  const quadrantSE = formData.get("quadrantSE") || null;
-  const quadrantSW = formData.get("quadrantSW") || null;
+  const quadrantNE = formData.get("quadrantNE") || "";
+  const quadrantNW = formData.get("quadrantNW") || "";
+  const quadrantSE = formData.get("quadrantSE") || "";
+  const quadrantSW = formData.get("quadrantSW") || "";
   const ring1 = formData.get("ring1") || null;
   const ring2 = formData.get("ring2") || null;
   const ring3 = formData.get("ring3") || null;

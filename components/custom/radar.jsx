@@ -20,16 +20,19 @@ export function Radar({ user, radar }) {
 
         if (mounted) {
           const factory = new Factory();
+          // Filter out quadrants that don't have a name
+          const filteredQuadrants = quadrants ? quadrants.filter(q => q && q.trim() !== '') : [];
+          
           // Ensure we have valid data before building
-          if (entries && entries.length >= 0 && quadrants && quadrants.length === 4 && rings && rings.length >= 3) {
+          if (entries && entries.length >= 0 && filteredQuadrants && filteredQuadrants.length > 0 && rings && rings.length >= 3) {
             factory.build(entries, {
               rings,
-              quadrants,
+              quadrants: filteredQuadrants,
               print_layout: false
             });
             setIsInitialized(true);
           } else {
-            console.error("Invalid data format for radar", { entries, quadrants, rings });
+            console.error("Invalid data format for radar", { entries, quadrants: filteredQuadrants, rings });
           }
         }
       } catch (error) {

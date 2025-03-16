@@ -80,10 +80,13 @@ export function RadarEntryForm({ entry, radarId, ringOptions, quadrantOptions, i
     }
   }
 
-  const normalizedQuadrantOptions = quadrantOptions?.map(option => ({
-    ...option,
-    value: option.value
-  }));
+  // Filter out any quadrants that don't have names
+  const normalizedQuadrantOptions = quadrantOptions
+    ?.filter(option => option.label && option.label.trim() !== '')
+    ?.map(option => ({
+      ...option,
+      value: option.value
+    }));
 
   return (
     <Form {...form}>

@@ -20,10 +20,10 @@ import { deleteRadar } from "@/app/actions/radar";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  quadrantNE: z.string().min(1, "North East quadrant name is required"),
-  quadrantNW: z.string().min(1, "North West quadrant name is required"),
-  quadrantSE: z.string().min(1, "South East quadrant name is required"),
-  quadrantSW: z.string().min(1, "South West quadrant name is required"),
+  quadrantNE: z.string().optional(),
+  quadrantNW: z.string().optional(),
+  quadrantSE: z.string().optional(),
+  quadrantSW: z.string().optional(),
   ring1: z.string().min(1, "Ring 1 name is required"),
   ring2: z.string().min(1, "Ring 2 name is required"),
   ring3: z.string().min(1, "Ring 3 name is required"),
