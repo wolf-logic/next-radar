@@ -101,7 +101,8 @@
           
           &:hover {
             opacity: 1;
-            background-color: colors.$mist;
+            background-color: colors.$white;
+            box-shadow: 0 0 0 1px colors.$grey-light;
           }
           
           svg {
