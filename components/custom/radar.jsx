@@ -29,7 +29,7 @@ export function Radar({ user, radar }) {
               rings,
               quadrants: filteredQuadrants,
               print_layout: false
-            });
+            }, user, radar);
             setIsInitialized(true);
           } else {
             console.error("Invalid data format for radar", { entries, quadrants: filteredQuadrants, rings });

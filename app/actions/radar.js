@@ -84,6 +84,7 @@ export async function getRadarData(userSlug, radarSlug) {
       ring4: true,
       entries: {
         select: {
+          id: true,
           name: true,
           ring: true,
           quadrant: true,
@@ -131,7 +132,9 @@ export async function getRadarData(userSlug, radarSlug) {
         se: radar.quadrantSE,
         sw: radar.quadrantSW
       }[entry.quadrant.toLowerCase()] || entry.quadrant,
-    ring: ringMap[entry.ring] || entry.ring
+    ring: ringMap[entry.ring] || entry.ring,
+    // Ensure we preserve the entry ID for linking purposes
+    id: entry.id
   }));
 
   // Filter out any empty quadrants

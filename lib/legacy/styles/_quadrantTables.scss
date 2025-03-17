@@ -61,14 +61,14 @@
         cursor: pointer;
         scroll-margin-top: misc.$subnavHeight;
 
-        & > * {
+        & > *:not(.blip-list__item-container__name-edit-button) {
           pointer-events: none;
         }
 
         &-value {
           pointer-events: none;
           display: inline-block;
-          width: 90%;
+          width: 80%;
           font-family: fonts.$baseFontFamily;
           font-size: 1.125rem;
         }
@@ -83,6 +83,30 @@
           border-width: 0 2px 2px 0;
           -webkit-transition: all 0.2s ease;
           transition: all 0.2s ease;
+          margin-left: 10px;
+        }
+
+        &-edit-button {
+          display: inline-flex;
+          margin-left: 15px;
+          color: colors.$flamingo;
+          opacity: 0.7;
+          transition: opacity 0.2s ease;
+          background-color: rgba(255, 255, 255, 0.8);
+          padding: 5px;
+          border-radius: 4px;
+          position: relative;
+          z-index: 10;
+          line-height: 0;
+          
+          &:hover {
+            opacity: 1;
+            background-color: colors.$mist;
+          }
+          
+          svg {
+            vertical-align: middle;
+          }
         }
       }
 
