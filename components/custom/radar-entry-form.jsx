@@ -41,6 +41,19 @@ export function RadarEntryForm({ entry, radarId, ringOptions, quadrantOptions, i
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  // Filter out any quadrants that don't have names
+  const normalizedQuadrantOptions = quadrantOptions
+    ?.filter(option => option.label && option.label.trim() !== "")
+    ?.map(option => ({
+      ...option,
+      value: option.value
+    }));
+
+  // Auto-select the only quadrant if there's just one available
+  const defaultQuadrant = normalizedQuadrantOptions?.length === 1 
+    ? normalizedQuadrantOptions[0].value 
+    : "";
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: isEditing
@@ -54,7 +67,7 @@ export function RadarEntryForm({ entry, radarId, ringOptions, quadrantOptions, i
       : {
           name: "",
           ring: "",
-          quadrant: "",
+          quadrant: defaultQuadrant, // Auto-select the only quadrant
           status: "New",
           description: ""
         }
@@ -80,13 +93,6 @@ export function RadarEntryForm({ entry, radarId, ringOptions, quadrantOptions, i
     }
   }
 
-  // Filter out any quadrants that don't have names
-  const normalizedQuadrantOptions = quadrantOptions
-    ?.filter(option => option.label && option.label.trim() !== "")
-    ?.map(option => ({
-      ...option,
-      value: option.value
-    }));
 
   return (
     <Form {...form}>
