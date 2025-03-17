@@ -82,7 +82,7 @@ export function RadarEntryForm({ entry, radarId, ringOptions, quadrantOptions, i
 
   // Filter out any quadrants that don't have names
   const normalizedQuadrantOptions = quadrantOptions
-    ?.filter(option => option.label && option.label.trim() !== '')
+    ?.filter(option => option.label && option.label.trim() !== "")
     ?.map(option => ({
       ...option,
       value: option.value
@@ -119,11 +119,14 @@ export function RadarEntryForm({ entry, radarId, ringOptions, quadrantOptions, i
                       <SelectValue placeholder="Select a ring">{selectedOption?.label}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {ringOptions?.map(option => (
-                        <SelectItem key={option.value} value={option.value.toString()}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
+                      {ringOptions?.map(option => {
+                        if (!option.label) return null;
+                        return (
+                          <SelectItem key={option.value} value={option.value.toString()}>
+                            {option.label}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </FormControl>
