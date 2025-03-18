@@ -8,8 +8,8 @@ import "./globals.scss";
 import { LandingPage } from "@/components/custom/landing-page";
 
 export const metadata = {
-  title: "Build Your Own Radar",
-  description: "A library that generates an interactive radar, inspired by thoughtworks.com/radar"
+  title: "Wolf Logic Radar",
+  description: "An app for building your own radar charts"
 };
 
 export const dynamic = "force-dynamic"; // auto | force-dynamic | error | force-static
