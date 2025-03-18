@@ -2,6 +2,7 @@ import React from "react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -25,7 +26,9 @@ export async function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader></SidebarHeader>
+      <SidebarHeader>
+        <div className="mx-2 mt-4">Wolf Logic Radar</div>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Radars</SidebarGroupLabel>
@@ -39,6 +42,15 @@ export async function AppSidebar() {
         </SidebarGroup>
         <div id="context-actions-portal" />
       </SidebarContent>
+      <SidebarFooter>
+        <div className="mx-1 text-xs text-gray-400">
+          This software is{" "}
+          <a className="underline" href="https://github.com/wolf-logic/next-radar">
+            open source
+          </a>{" "}
+          and available for download and self-hosting.
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }
